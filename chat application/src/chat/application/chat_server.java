@@ -7,9 +7,9 @@ package chat.application;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import javafx.stage.Stage;
 
 /**
  *
@@ -20,15 +20,14 @@ public class chat_server extends javax.swing.JFrame {
     /**
      * Creates new form chat_server
      */
-    
     static ServerSocket ss;
     static Socket s;
     static DataInputStream din;
     static DataOutputStream dout;
+
     public chat_server() {
         initComponents();
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -43,9 +42,12 @@ public class chat_server extends javax.swing.JFrame {
         msg_field = new javax.swing.JTextArea();
         msg_text = new javax.swing.JTextField();
         msg_send = new javax.swing.JButton();
+        sendfile = new javax.swing.JButton();
+        fileDirectory = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        msg_field.setEditable(false);
         msg_field.setColumns(20);
         msg_field.setRows(5);
         jScrollPane1.setViewportView(msg_field);
@@ -63,6 +65,13 @@ public class chat_server extends javax.swing.JFrame {
             }
         });
 
+        sendfile.setText("Send File");
+        sendfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendfileActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -70,23 +79,31 @@ public class chat_server extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(msg_text, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(msg_send)))
+                        .addComponent(msg_send))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fileDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendfile)))
                 .addContainerGap(62, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(msg_text, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(msg_send))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendfile))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         pack();
@@ -98,15 +115,30 @@ public class chat_server extends javax.swing.JFrame {
 
     private void msg_sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msg_sendActionPerformed
         // TODO add your handling code here:
-        try{
+        try {
             String msgout = "";
-        msgout = msg_text.getText().trim();
-        dout.writeUTF(msgout);
-        msg_field.setText(msg_field.getText().trim()+"\n Sent by server:\t"+msgout);
-        } catch(Exception e){
+            msgout = msg_text.getText().trim();
+            dout.writeUTF(msgout);
+            msg_field.setText(msg_field.getText().trim() + "\n Sent by server:\t" + msgout);
+            msg_text.setText("");
+        } catch (Exception e) {
         }
-        
+
     }//GEN-LAST:event_msg_sendActionPerformed
+
+    private void sendfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendfileActionPerformed
+        // TODO add your handling code here:
+        try {
+            String Directory = "";
+            Directory = fileDirectory.getText().trim();
+            FileInputStream fr = new FileInputStream(Directory);
+            byte b[] = new byte[2002];
+            fr.read(b, 0, b.length);
+            dout.write(b, 0, b.length);
+            fileDirectory.setText("");
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_sendfileActionPerformed
 
     /**
      * @param args the command line arguments
@@ -141,28 +173,30 @@ public class chat_server extends javax.swing.JFrame {
                 new chat_server().setVisible(true);
             }
         });
-        
+
         String msgin = "";
-        try{
+        try {
             ss = new ServerSocket(1201);
             s = ss.accept();
-            
+
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
-            
-            while(!msgin.equals("exit")){
-            msgin = din.readUTF();
-            msg_field.setText(msg_field.getText().trim()+"\n Received from client:\t"+msgin);
-            
-        }
-        }catch(Exception e){
+
+            while (!msgin.equals("exit")) {
+                msgin = din.readUTF();
+                msg_field.setText(msg_field.getText().trim() + "\n Received from client:\t" + msgin);
+
+            }
+        } catch (Exception e) {
         }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField fileDirectory;
     private javax.swing.JScrollPane jScrollPane1;
     private static javax.swing.JTextArea msg_field;
     private javax.swing.JButton msg_send;
     private javax.swing.JTextField msg_text;
+    private javax.swing.JButton sendfile;
     // End of variables declaration//GEN-END:variables
 }

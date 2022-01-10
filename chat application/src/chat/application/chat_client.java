@@ -7,8 +7,8 @@ package chat.application;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.net.Socket;
-import javafx.stage.Stage;
 
 /**
  *
@@ -45,6 +45,7 @@ public class chat_client extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        msg_field.setEditable(false);
         msg_field.setColumns(20);
         msg_field.setRows(5);
         jScrollPane1.setViewportView(msg_field);
@@ -92,6 +93,7 @@ public class chat_client extends javax.swing.JFrame {
             msgout = msg_text.getText().trim();
             dout.writeUTF(msgout);
             msg_field.setText(msg_field.getText().trim() + "\n Sent by client:\t" + msgout);
+            msgout = "";
         } catch (Exception e) {
         }
 
@@ -135,6 +137,10 @@ public class chat_client extends javax.swing.JFrame {
             s = new Socket("127.0.0.1", 1201);
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
+            byte b[] = new byte[2002];
+            FileOutputStream fr = new FileOutputStream("D:\\test.txt");
+            din.read(b,0,b.length);
+            fr.write(b,0,b.length);
             String msgin = "";
             while (!msgin.equals("exit")) {
                 msgin = din.readUTF();
